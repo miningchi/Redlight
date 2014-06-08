@@ -8,7 +8,7 @@ shinyUI(pageWithSidebar(
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Application title
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  headerPanel("MiningChi - Chicago Crime Data Visualization"),
+  headerPanel("MiningChi - Chicago Red Light Cameras Data Visualization"),
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Sidebar Panel
@@ -54,20 +54,14 @@ shinyUI(pageWithSidebar(
     tabsetPanel(
       tabPanel("Introduction", includeMarkdown("docs/introduction.md")),
       tabPanel("Data", dataTableOutput("datatable")),
-      tabPanel("Crime Map", uiOutput("mapcenter"), div(class="span6",uiOutput("mapzoom")),
+      tabPanel("Red Light Camera Map", uiOutput("mapcenter"), div(class="span6",uiOutput("mapzoom")),
                div(class="span8", plotOutput("map",height=600,width=600)),div(class="span4",uiOutput("maptype")),div(class="span2",uiOutput("mapres")),
                div(class="span2",uiOutput("mapbw"))),
-      tabPanel("Analysis", uiOutput("analperiod"),plotOutput("analplot")),
-      tabPanel("Weather", div(class="span4",uiOutput("weatherperiod")), plotOutput("weather")),
-      tabPanel("Crime Heat Map", uiOutput("hmapcenter"), div(class="span6",uiOutput("hmapzoom")),
-               div(class="span8", plotOutput("heatmap",height=600,width=600)),div(class="span4",uiOutput("hmaptype")),div(class="span2",uiOutput("hmapres")),
-               div(class="span2",uiOutput("hmapbw")), div(class="span2",uiOutput("halpharange")), div(class="span2",uiOutput("hbins")),
-               div(class="span2",uiOutput("hboundwidth")), div(class="span2",uiOutput("hboundcolor")), div(class="span2",uiOutput("hlow")),
-               div(class="span2",uiOutput("hhigh"))
-               ),
-      tabPanel("Traffic", uiOutput("tmaptitle"),uiOutput("tmapcenter"), div(class="span6",uiOutput("tmapzoom")),
-               div(class="span8", plotOutput("tmap",height=600,width=600)),div(class="span4",uiOutput("tmaptype")),div(class="span2",uiOutput("tmapres")),
-               div(class="span2",uiOutput("tmapbw"))),
+      #tabPanel("Analysis", uiOutput("analperiod"),plotOutput("analplot")),
+      #tabPanel("Weather", div(class="span4",uiOutput("weatherperiod")), plotOutput("weather")),
+      #tabPanel("Traffic", uiOutput("tmaptitle"),uiOutput("tmapcenter"), div(class="span6",uiOutput("tmapzoom")),
+        #       div(class="span8", plotOutput("tmap",height=600,width=600)),div(class="span4",uiOutput("tmaptype")),div(class="span2",uiOutput("tmapres")),
+         #      div(class="span2",uiOutput("tmapbw"))),
       tabPanel("Credits", includeMarkdown("docs/credits.md"))
     ) 
   )

@@ -1,0 +1,10 @@
+*.RData
+*.Rhistory
+*.csv
+*.rda
+*.history
+*.dcf
+
+ggmapTemp.png
+
+ggmapTemp.png alias
