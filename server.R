@@ -9,10 +9,6 @@ suppressMessages(library(plyr))
 suppressMessages(library(markdown))
 suppressMessages(library(rCharts))
 suppressMessages(library(parallel))
-suppressMessages(library(xts)) #added this for trends
-suppressMessages(library(stringr)) #added this for time, not sure if still needed
-suppressMessages(library(gtable)) #added this for trends
-library("rjson") #added this for json traffic data
 #load(file = "./data/weather.rda")
 load(file = "./data/redlight.rda")
 
@@ -26,24 +22,15 @@ shinyServer(function(input, output) {
   
   datesubset <- reactive({
           subset(df, PosixDate > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & PosixDate < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")))
-          })
+        })
   
- # datetypesubset <- reactive({
-#                 tempdate   <- subset(df, PosixDate > as.POSIXct(strptime(input$startdate, format="%Y-%m-%d")) & PosixDate < as.POSIXct(strptime(input$enddate, format="%Y-%m-%d")))
- #                tempdatetype <- subset(tempdate, Primary.Type == input$crimetype)
-  #               return (tempdatetype)
-   #              })  
-  
-
 
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Output 1 - Data Table
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   output$datatable <- renderDataTable({
-   
-    datesubset() 
-  
+   datesubset() 
     }, options = list(aLengthMenu = c(10, 25, 50, 100, 1000), iDisplayLength = 10))
   
   
@@ -53,12 +40,12 @@ shinyServer(function(input, output) {
   ## Output 2 - Map
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
-  output$maptitle <- renderUI({helpText(HTML("<b>MAP SETTINGS</b>"))})
+  output$maptitle <- renderUI({helpText(HTML("<b>Red Light cameras in Red, Speed cameras in Blue</b>"))})
   output$mapcenter <- renderUI({textInput("center", "Enter a Location to Center Map, such as city or zipcode, the click Update", "Chicago")})
   output$maptype <- renderUI({selectInput("type", "Choose Google Map Type:", choice = c("roadmap", "satellite", "hybrid","terrain"))})
   output$mapres <- renderUI({checkboxInput("res", "High Resolution?", FALSE)})
   output$mapbw <- renderUI({checkboxInput("bw", "Black & White?", FALSE)})
-  output$mapzoom <- renderUI({sliderInput("zoom", "Zoom Level (Recommended - 12):", min = 9, max = 20, step = 1, value = 14)})
+  output$mapzoom <- renderUI({sliderInput("zoom", "Zoom Level (Recommended - 12):", min = 9, max = 20, step = 1, value = 12)})
   
   output$map <- renderPlot({
      
@@ -96,8 +83,8 @@ shinyServer(function(input, output) {
  
     ## add crime points
     redlightdatabase <- datesubset() 
- p <- map.base + geom_point(aes(x=long, y=lat), colour="red", size = 4, na.rm=TRUE, data=redlightdatabase)
-  
+ p <- map.base + geom_point(aes(x=long, y=lat), colour="red", size = 4, na.rm=TRUE, data=subset(redlightdatabase,Red.Speed == 1))
+p <- p + geom_point(aes(x=long, y=lat), colour="blue", size = 4, na.rm=TRUE, data=subset(redlightdatabase,Red.Speed == 0))
  plot(p)
   })
  #, width = 1800, height = 1800)

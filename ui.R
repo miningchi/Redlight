@@ -8,7 +8,7 @@ shinyUI(pageWithSidebar(
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Application title
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  headerPanel("MiningChi - Chicago Red Light Cameras Data Visualization"),
+  headerPanel("MiningChi - Traffic Cameras"),
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Sidebar Panel
@@ -54,7 +54,7 @@ shinyUI(pageWithSidebar(
     tabsetPanel(
       tabPanel("Introduction", includeMarkdown("docs/introduction.md")),
       tabPanel("Data", dataTableOutput("datatable")),
-      tabPanel("Red Light Camera Map", uiOutput("mapcenter"), div(class="span6",uiOutput("mapzoom")),
+      tabPanel("Camera Map", uiOutput("maptitle"), uiOutput("mapcenter"), div(class="span6",uiOutput("mapzoom")),
                div(class="span8", plotOutput("map",height=600,width=600)),div(class="span4",uiOutput("maptype")),div(class="span2",uiOutput("mapres")),
                div(class="span2",uiOutput("mapbw"))),
       #tabPanel("Analysis", uiOutput("analperiod"),plotOutput("analplot")),
