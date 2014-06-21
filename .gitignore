@@ -4,7 +4,7 @@
 *.rda
 *.history
 *.dcf
-
+*.xls
 ggmapTemp.png
 
 ggmapTemp.png alias
