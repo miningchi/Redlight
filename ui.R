@@ -8,7 +8,7 @@ shinyUI(pageWithSidebar(
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Application title
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  headerPanel("MiningChi - Traffic Cameras"),
+  headerPanel("MiningChi - Red Light Cameras"),
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Sidebar Panel
@@ -23,30 +23,23 @@ shinyUI(pageWithSidebar(
     
     wellPanel(
       helpText(HTML("<b>BASIC SETTINGS</b>")),
-      selectInput("crimetype", "Choose Crime Type:", choice = c("HOMICIDE","THEFT","CRIM SEXUAL ASSAULT","BURGLARY","BATTERY","ROBBERY",
-                                            "INTERFERENCE WITH PUBLIC OFFICER","DECEPTIVE PRACTICE","ARSON","CRIMINAL DAMAGE",
-                                            "ASSAULT","NARCOTICS","CRIMINAL TRESPASS","OTHER OFFENSE","PUBLIC PEACE VIOLATION",
-                                            "SEX OFFENSE","OFFENSE INVOLVING CHILDREN","PROSTITUTION","WEAPONS VIOLATION","KIDNAPPING",
-                                            "LIQUOR LAW VIOLATION","STALKING","NON-CRIMINAL","INTIMIDATION","OBSCENITY",
-                                            "PUBLIC INDECENCY","OTHER NARCOTIC VIOLATION","GAMBLING","OTHER OFFENSE ","NON - CRIMINAL",
-                                            "NON-CRIMINAL (SUBJECT SPECIFIED)","INTERFERE WITH PUBLIC OFFICER","OFFENSES INVOLVING CHILDREN","RITUALISM")),
-      helpText("Examples: BATTERY, THEFT etc."),
       
-      dateInput("startdate", "Start Date of Data Collection:", value = "2000-01-01", format = "mm-dd-yyyy",
-                min = "2000-01-01", max = "2014-09-29"),
+      selectInput('Intersection', 'Options', df$INTERSECTION, selected = "Pulaski-55th",selectize=TRUE),
       
-      dateInput("enddate", "End Date of Data Collection:", value = "2015-01-02", format = "mm-dd-yyyy",
-                min = "startdate", max = "2014-09-30"),
+      dateInput("startdate", "Start Date of Data Collection:", value = "2009-01-01", format = "mm-dd-yyyy",
+                min = "2009-01-01", max = "2012-12-31"),
+      
+      dateInput("enddate", "End Date of Data Collection:", value = "2013-01-02", format = "mm-dd-yyyy",
+                min = "2009-01-02", max = "2013-01-02"),
       ##Need some validation that enddate is after start date
-      
-      helpText("MM-DD-YEAR as Date Format")      
+      helpText("MM-DD-YEAR as Date Format")
     )
     
    ),
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ## Main Panel
-  ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ## Main Panel 
+  ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
   
 #just need to find the right HTML formatting
 
@@ -54,15 +47,18 @@ shinyUI(pageWithSidebar(
     tabsetPanel(
       tabPanel("Introduction", includeMarkdown("docs/introduction.md")),
       tabPanel("Data", dataTableOutput("datatable")),
-      tabPanel("Camera Map", uiOutput("maptitle"), uiOutput("mapcenter"), div(class="span6",uiOutput("mapzoom")),
-               div(class="span8", plotOutput("map",height=600,width=600)),div(class="span4",uiOutput("maptype")),div(class="span2",uiOutput("mapres")),
-               div(class="span2",uiOutput("mapbw"))),
-      tabPanel("Accident Heat Map", uiOutput("hmapcenter"), div(class="span6",uiOutput("hmapzoom")),
-               div(class="span8", plotOutput("heatmap",height=600,width=600)),div(class="span4",uiOutput("hmaptype")),div(class="span2",uiOutput("hmapres")),
-               div(class="span2",uiOutput("hmapbw")), div(class="span2",uiOutput("halpharange")), div(class="span2",uiOutput("hbins")),
-               div(class="span2",uiOutput("hboundwidth")), div(class="span2",uiOutput("hboundcolor")), div(class="span2",uiOutput("hlow")),
-               div(class="span2",uiOutput("hhigh"))
-      ),
+      tabPanel("Analysis by Intersection", div(class="span4",uiOutput("accperiod")), plotOutput("accchart",width="100%"),
+               textOutput("totalaccidents"), textOutput("totalkilled"), textOutput("totalinjured"), tableOutput("totalcolltype")   ),
+               
+#       tabPanel("Camera Map", uiOutput("maptitle"), uiOutput("mapcenter"), div(class="span6",uiOutput("mapzoom")),
+#                div(class="span8", plotOutput("map",height=600,width=600)),div(class="span4",uiOutput("maptype")),div(class="span2",uiOutput("mapres")),
+#                div(class="span2",uiOutput("mapbw"))),
+#       tabPanel("Accident Heat Map", uiOutput("hmapcenter"), div(class="span6",uiOutput("hmapzoom")),
+#                div(class="span8", plotOutput("heatmap",height=600,width=600)),div(class="span4",uiOutput("hmaptype")),div(class="span2",uiOutput("hmapres")),
+#                div(class="span2",uiOutput("hmapbw")), div(class="span2",uiOutput("halpharange")), div(class="span2",uiOutput("hbins")),
+#                div(class="span2",uiOutput("hboundwidth")), div(class="span2",uiOutput("hboundcolor")), div(class="span2",uiOutput("hlow")),
+#                div(class="span2",uiOutput("hhigh"))
+#       ),
       #tabPanel("Analysis", uiOutput("analperiod"),plotOutput("analplot")),
       #tabPanel("Weather", div(class="span4",uiOutput("weatherperiod")), plotOutput("weather")),
       #tabPanel("Traffic", uiOutput("tmaptitle"),uiOutput("tmapcenter"), div(class="span6",uiOutput("tmapzoom")),

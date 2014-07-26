@@ -2,9 +2,7 @@
 
 Colloborators:
 + <a href="http:www.rajivshah.com" target=" blank">Rajiv Shah</a>
-+ Chris Pulec
-+ Jeremy Braithwaite
-
+Aaron Moore
 
 Our Code at Github:
 <a href="https://github.com/miningchi/redlight" target=" blank">Shiny code for our site</a>
