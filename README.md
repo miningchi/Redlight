@@ -1,4 +1,4 @@
-Redlight
+Red Light Camera Analysis
 ========
 This site allows you to visualize and analyze Chicago's red light cameras. 
 
