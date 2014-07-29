@@ -9,7 +9,7 @@ suppressMessages(library(plyr))
 suppressMessages(library(markdown))
 suppressMessages(library(rCharts))
 suppressMessages(library(parallel))
-#load(file = "./data/weather.rda")
+#Load data files
 load(file = "./data/redlight2.rda")
 load(file = "./data/redlight.rda")
 #load(file = "./data/redlightaccidents.rda")
