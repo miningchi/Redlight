@@ -17,6 +17,24 @@ load(file = "./data/total.rda")
 load(file = "./data/ticket.rda")
 #df <- subset(df,Red.Speed==1)
 
+xtsMelt <- function(data) {
+  require(reshape2)
+  #translate xts to time series to json with date and data
+  #for this behavior will be more generic than the original
+  #data will not be transformed, so template.rmd will be changed to reflect
+  #convert to data frame
+  data.df <- data.frame(cbind(format(index(data),"%Y-%m-%d"),coredata(data)))
+  colnames(data.df)[1] = "date"
+  data.melt <- melt(data.df,id.vars=1,stringsAsFactors=FALSE)
+  colnames(data.melt) <- c("date","indexname","value")
+  #remove periods from indexnames to prevent javascript confusion
+  #these . usually come from spaces in the colnames when melted
+  data.melt[,"indexname"] <- apply(matrix(data.melt[,"indexname"]),2,gsub,pattern="[.]",replacement="")
+  return(data.melt)
+  #return(df2json(na.omit(data.melt)))
+}
+
+
 ## Define server logic required to summarize and view the selected dataset
 shinyServer(function(input, output) {
   
@@ -63,8 +81,7 @@ shinyServer(function(input, output) {
   
   output$accperiod <- renderUI({selectInput("aperiod", "Choose Period to Analyze:", choice = c("yearly", "monthly","weekly", "daily"))})
   
-  
-  output$accchart <- renderPlot({
+  output$accidents <- renderChart2({
     library(xts)
     #sum by crime type - and take into account different scales
     if (is.null(input$aperiod)) {temp.aperiod <- "yearly"}
@@ -78,15 +95,32 @@ shinyServer(function(input, output) {
 
    # zoo.basket <- as.zoo(totalxts)
 
+  ust.melt <- na.omit(xtsMelt(TotalAccidents))
+  ust.melt$date2 <- as.Date(ust.melt$date, format = "%Y-%m-%d")
+  ust.melt$Accidents <- as.numeric(as.character(ust.melt$value))
+  ust.melt$date4  <- as.numeric(as.POSIXct(ust.melt$date2, origin="1970-01-01")) * 1000
+  
+  h1 <- hPlot(
+    Accidents ~ date4,  #or x="date", y="value"
+    data = ust.melt, 
+    color = '#4572A7',
+    type = 'spline',
+    title = paste("Accidents at",input$Intersection)
+  ) 
+  h1$xAxis(type = "datetime")
+  
+  h1
+})
 
-    plot(TotalAccidents,main=paste("Accidents at",input$Intersection), type='bars')},  height = 300, width = 500)
+   # plot(TotalAccidents,main=paste("Accidents at",input$Intersection), type='bars')},  height = 300, width = 500)
+
+output$space <- renderUI({helpText(HTML("<br>"))})
 
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Ticket Plot
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  
-  
- output$ticketchart <- renderPlot({
+ 
+ output$ticketchart <- renderChart2({
    library(xts)
    if (is.null(input$aperiod)) {temp.aperiod <- "yearly"}
    else {temp.aperiod <- input$aperiod }
@@ -99,11 +133,26 @@ shinyServer(function(input, output) {
    if (temp.aperiod == "monthly") {TotalTickets <- apply.monthly(totalxts1,sum)}
    if (temp.aperiod == "yearly") {TotalTickets <- apply.yearly(totalxts1,sum)}
 
-   plot(TotalTickets, main=paste("Tickets at",xtstemp$Address[1]), type='bars')},  height = 300, width = 500)
+ust.melt <- na.omit(xtsMelt(TotalTickets))
+ust.melt$date2 <- as.Date(ust.melt$date, format = "%Y-%m-%d")
+ust.melt$Tickets <- as.numeric(as.character(ust.melt$value))
+ust.melt$date4  <- as.numeric(as.POSIXct(ust.melt$date2, origin="1970-01-01")) * 1000
+
+h2 <- hPlot(
+  Tickets ~ date4,  #or x="date", y="value"
+  data = ust.melt,
+  type = 'spline',
+  title = paste("Tickets at",input$Intersection)
+) 
+h2$xAxis(type = "datetime")
+h2
+})
+
+  # plot(TotalTickets, main=paste("Tickets at",xtstemp$Address[1]), type='bars')},  height = 300, width = 500)
 # plot (temp12)
 # })
  
-
+output$heading <- renderUI({helpText(HTML("<b>Some statistics for the intersection:</b><br>"))})
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Outputs of Analysis
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -167,7 +216,7 @@ output$datatickettable <- renderDataTable({
 
 
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-## Output 1 - RLC Table
+## Output 1 - RLC Data Table
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 output$dataRLC <- renderDataTable({
@@ -177,7 +226,7 @@ output$dataRLC <- renderDataTable({
 
 
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-## Output 2 - Map
+## Output - Map
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 output$maptitle <- renderUI({helpText(HTML("<b>Red Light cameras in Red, Speed cameras in Blue</b>"))})
@@ -233,6 +282,7 @@ output$map <- renderPlot({
   p <- map.base + geom_point(aes(x=CrashLongitude, y=CrashLatitude), colour="red", size = 4, na.rm=TRUE, subset(redlightdatabase,IntersectionID != 0))
   plot(p)},
   height = 500, width = 800)
+
 
   })
     
