@@ -9,7 +9,7 @@ suppressMessages(library(plyr))
 suppressMessages(library(markdown))
 suppressMessages(library(rCharts))
 suppressMessages(library(parallel))
-    library(xts)
+  library(xts)
 #Load data files
 load(file = "./data/redlight2.rda")
 load(file = "./data/redlight.rda")
@@ -179,10 +179,15 @@ output$totaltickets <- renderText({
   paste("Total Tickets:", total)
 })
 
+output$mapinfo <- renderText({
+  paste("Zoom in and hover over black dots for accident details")
+})
+
 #Total Tickets for Map page 
 output$totaltickets2 <- renderText({
   temp <- datesubsetticket()
   total <- nrow (temp)
+  
   paste("Total Tickets:", total)
 })
 
@@ -250,59 +255,58 @@ output$dataRLC <- renderDataTable({
 ## Output - Map of Accidents
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#All the possible controls for map
-output$maptitle <- renderUI({helpText(HTML("<b>Red Light cameras in Red, Speed cameras in Blue</b>"))})
-output$mapcenter <- renderUI({textInput("center", "Enter a Location to Center Map, such as city or zipcode, the click Update", "Chicago")})
-output$maptype <- renderUI({selectInput("type", "Choose Google Map Type:", choice = c("roadmap", "satellite", "hybrid","terrain"))})
-output$mapres <- renderUI({checkboxInput("res", "High Resolution?", FALSE)})
-output$mapbw <- renderUI({checkboxInput("bw", "Black & White?", FALSE)})
-output$mapzoom <- renderUI({sliderInput("zoom", "Zoom Level (Recommended - 20):", min = 9, max = 24, step = 1, value = 20)})
+output$map <- renderMap({
+df3 <- datesubset() 
+df3 <- rename(df3, c("CrashLatitude"="lat", "CrashLongitude"="lon"))
 
-#Rendering the map
-output$map <- renderPlot({
-  redlightdatabase <- datesubset() 
-  
-  #Get the center from the first value
-  map.center <- head(redlightdatabase,n=1)
-  map.center <- map.center[c("CrashLongitude","CrashLatitude")]
-  colnames(map.center)[1] <- "long"
-  colnames(map.center)[2] <- "lat"
-  print(map.center)
- 
-  # Set Defaults for when Map starts
-  if (is.null(input$bw)) {temp.color <- "color"}
-  else {
-    temp.color <- "color"
-    if (input$bw) {temp.color <- "bw"}}
-  
-  if (is.null(input$res)) {temp.scale <- 2}
-  else {
-    temp.scale <- 1
-    if (input$res) {temp.scale <- 2}}
-  
-  if (is.null(input$zoom)) {temp.zoom <- 20}
-  else {temp.zoom <- input$zoom }
-  
-  
-  #Get Base Map
-  map.base <- get_googlemap(
-    as.matrix(map.center),
-    maptype = input$type, ## Map type as defined above (roadmap, terrain, satellite, hybrid)
-    # markers = map.center,
-    zoom = temp.zoom,            ## 14 is just about right for a 1-mile radius
-    color = temp.color,   ## "color" or "bw" (black & white)
-    scale = temp.scale,  ## Set it to 2 for high resolution output
-    messaging = FALSE,
-  )
-  
-  ## Convert the base map into a ggplot object
-  ## All added Cartesian coordinates to enable more geom options later on
-  map.base <- ggmap(map.base, extend = "panel", messaging = FALSE) + coord_cartesian() + coord_fixed(ratio = 1.5)
-  
-  ## add points
-  p <- map.base + geom_point(aes(x=CrashLongitude, y=CrashLatitude), colour="red", size = 4, na.rm=TRUE, subset(redlightdatabase,IntersectionID != 0))
-  plot(p)},
-  height = 500, width = 800)
+#Get the center from the first value
+map.center <- head(df3,n=1)
+map.center <- map.center[c("lat","lon")]
+
+#Get text for labels
+collisiontype <- (df3$collisiontypecode)
+collisioncodes <- c(Pedestrian=1, Pedalcyclist=2, Train=3, Animal=4,Overturned=5, 
+                    "Fixed Object"=6, "Other Object"=7, "Other non-collision"=8, "Parked Motor vehicle"=9, Turning= 10,
+                    "Read-end"=11, "Sideswipe-same direction"=12, "Sideswipe-opposite direction"=13, "Head-on"=14, Angle=15)
+df3$CollisionType <- names(collisioncodes)[match(collisiontype,collisioncodes)]
+
+#Infor for popup tags
+df3$color <- "#050505"
+df3$popup <- paste0("<p>Collision Type:  ", df3$CollisionType, 
+                    "<br>Total Injured:  ", df3$total.injured, 
+                    "<br>Total Killed:  ", df3$totalkilled)
+
+#Convert to list for JSON
+tmp.data <- apply(df3, 1, as.list)
+
+
+map <- Leaflet$new()
+map$setView(c(map.center$lat,map.center$lon), zoom = 15)
+#map$setView(c(41,-87), zoom = 13)
+map$tileLayer(provider = 'Stamen.TonerLite')
+map$tileLayer(provider = 'OpenStreetMap.Mapnik')
+map$geoJson(toGeoJSON(tmp.data, lat = 'lat', lon = 'lon'),
+            onEachFeature = '#! function(feature, layer){
+            layer.bindPopup(feature.properties.popup)
+} !#',
+            pointToLayer =  "#! function(feature, latlng){
+            return L.circleMarker(latlng, {
+            radius: 8,
+            fillColor: feature.properties.color || 'red', 
+            color: '#000',
+            weight: 1,
+            fillOpacity: 0.8
+            })
+            } !#"           
+)
+# map$marker(
+#    c(map.center$lat,map.center$lon),
+#    bindPopup = 'Hi. I am a popup'
+#  )
+map$enablePopover(TRUE)
+map
+
+})
 
 
   })
