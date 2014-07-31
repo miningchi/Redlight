@@ -46,10 +46,10 @@ shinyUI(pageWithSidebar(
       selectInput('Intersection', 'Options', df1$INTERSECTION, selected = "Halsted-119th",selectize=TRUE),
       
       dateInput("startdate", "Start Date:", value = "2009-01-01", format = "mm-dd-yyyy",
-                min = "2009-01-01", max = "2012-12-31"),
+                min = "2009-01-01", max = "2012-12-30"),
       
-      dateInput("enddate", "End Date:", value = "2013-01-02", format = "mm-dd-yyyy",
-                min = "2009-01-02", max = "2013-01-02"),
+      dateInput("enddate", "End Date:", value = "2012-12-31", format = "mm-dd-yyyy",
+                min = "2009-01-02", max = "2012-12-31"),
       ##Need some validation that enddate is after start date
       helpText("MM-DD-YEAR as date format"), 
       helpText("Ensure your period to analyze is less than the data range")
