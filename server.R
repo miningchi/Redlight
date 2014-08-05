@@ -220,14 +220,14 @@ output$totalaccidents2 <- renderText({
    paste("Total Injured over Date Range:", totalinjured)
  })
 
-output$heading1 <- renderUI({helpText(HTML("<br><b>Collision Type Totals during Date Range:</b><br>"))})
+output$heading1 <- renderUI({helpText(HTML("<br><br><b>Collision Type Totals during Date Range:</b>"))})
 
 ######
 # Table - Totals of Collision Type
 #####
 
-#Table for Collision Type
- output$totalcolltype <- renderTable({
+#Table for Collision Type 
+ output$totalcolltype <- renderDataTable({
    temp <- datesubset()
    collisiontype <- (temp$collisiontypecode)
    collisioncodes <- c(Pedestrian=1, Pedalcyclist=2, Train=3, Animal=4,Overturned=5, 
@@ -236,15 +236,15 @@ output$heading1 <- renderUI({helpText(HTML("<br><b>Collision Type Totals during 
    CollisionType <- names(collisioncodes)[match(collisiontype,collisioncodes)]
    temp3 <- table(CollisionType)
    as.data.frame(temp3)
- })
+ },options=list(bFilter = FALSE, bPaginate = FALSE))
 
-output$heading2 <- renderUI({helpText(HTML("<br><b>Breakdown of Collision Types over Period:</b><br>"))})
+output$heading2 <- renderUI({helpText(HTML("<br><br><b>Breakdown of Collision Types over Period:</b>"))})
 #
 ######
 # Table - Breakdown of Collision Types over Period
 #####
 
-output$totalcolltype2 <- renderTable({
+output$totalcolltype2 <- renderDataTable({
 for (n in seq(1,15,1))
 {
   # Convert to xts
@@ -274,7 +274,7 @@ temp$Date <- as.character(temp$Date)
 #r <- c("Total",p)
 #dd <-rbind(dd,r)
 temp
-})
+},options=list(bFilter = FALSE))
 
 
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

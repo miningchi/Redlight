@@ -68,7 +68,7 @@ shinyUI(pageWithSidebar(
       tabPanel("Analysis", div(class="span4",uiOutput("accperiod")), showOutput("accidents","highcharts"),uiOutput("space"),
                showOutput("ticketchart","highcharts"),uiOutput("heading"),
                textOutput("totaltickets"),textOutput("totalaccidents"), textOutput("totalkilled"), textOutput("totalinjured"), 
-               uiOutput("heading1"), tableOutput("totalcolltype"),uiOutput("heading2"), tableOutput("totalcolltype2")   ),
+               uiOutput("heading1"), dataTableOutput("totalcolltype"),uiOutput("heading2"), dataTableOutput("totalcolltype2")   ),
     tabPanel("Map", showOutput("map","leaflet"), textOutput("mapinfo"),textOutput("totaltickets2"), textOutput("totalaccidents2")),
       tabPanel("FAQ", includeMarkdown("docs/introduction.md")),
       tabPanel("Accident Data", dataTableOutput("datatable")),
