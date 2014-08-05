@@ -104,6 +104,7 @@ shinyServer(function(input, output) {
 #Convert to XTS time series for calculations
     xtstemp <- datesubset() 
     totalxts1 <- xts(xtstemp$IntersectionID>1,xtstemp$PosixDate)
+    
     if (temp.aperiod == "daily") {TotalAccidents <- apply.daily(totalxts1,sum)}
     if (temp.aperiod == "weekly") {TotalAccidents <- apply.weekly(totalxts1,sum)}
     if (temp.aperiod == "monthly") {TotalAccidents <- apply.monthly(totalxts1,sum)}
@@ -188,36 +189,42 @@ output$totaltickets2 <- renderText({
   temp <- datesubsetticket()
   total <- nrow (temp)
   
-  paste("Total Tickets:", total)
+  paste("Total Tickets over Date Range:", total)
 })
 
 #Total Accidents
  output$totalaccidents <- renderText({
    temp <- datesubset()
    total <- nrow (temp)
-   paste("Total Accidents:", total)
+   paste("Total Accidents over Date Range:", total)
  })
 
 #Total Accidents for Map page
 output$totalaccidents2 <- renderText({
   temp <- datesubset()
   total <- nrow (temp)
-  paste("Total Accidents:", total)
+  paste("Total Accidents over Date Range:", total)
 })
 
 #Total Killed
   output$totalkilled <- renderText({
     temp <- datesubset()
     totalkilled <- sum(temp$totalkilled)
-    paste("Total Killed:", totalkilled)
+    paste("Total Killed over Date Range:", totalkilled)
   })
 
 #Total Injured
  output$totalinjured <- renderText({
    temp <- datesubset()
    totalinjured <- sum(temp$total.injured)
-   paste("Total Injured:", totalinjured)
+   paste("Total Injured over Date Range:", totalinjured)
  })
+
+output$heading1 <- renderUI({helpText(HTML("<br><b>Collision Type Totals during Date Range:</b><br>"))})
+
+######
+# Table - Totals of Collision Type
+#####
 
 #Table for Collision Type
  output$totalcolltype <- renderTable({
@@ -230,8 +237,46 @@ output$totalaccidents2 <- renderText({
    temp3 <- table(CollisionType)
    as.data.frame(temp3)
  })
- 
- 
+
+output$heading2 <- renderUI({helpText(HTML("<br><b>Breakdown of Collision Types over Period:</b><br>"))})
+#
+######
+# Table - Breakdown of Collision Types over Period
+#####
+
+output$totalcolltype2 <- renderTable({
+for (n in seq(1,15,1))
+{
+  # Convert to xts
+  xtstemp <- datesubset()
+  collisionxts <-xts(xtstemp$collisiontypecode==n,xtstemp$PosixDate)
+  # Get Period
+  if (is.null(input$aperiod)) {temp.aperiod <- "yearly"}
+  else {temp.aperiod <- input$aperiod }
+  #Convert to XTS time series for calculations
+  if (temp.aperiod == "daily") {collisiontype <- apply.daily(collisionxts,sum)}
+  if (temp.aperiod == "weekly") {collisiontype <- apply.weekly(collisionxts,sum)}
+  if (temp.aperiod == "monthly") {collisiontype <- apply.monthly(collisionxts,sum)}
+  if (temp.aperiod == "yearly") {collisiontype <- apply.yearly(collisionxts,sum)}
+  collisiondf<-data.frame(index(collisiontype),coredata(collisiontype[,1]))
+  if (n==1) {temp <- collisiondf}
+  else {temp <- cbind(temp,collisiondf[,2])}
+}
+colnames(temp) <- c("Date","Pedestrian","Pedalcyclist","Train","Animal","Overturned", 
+                    "Fixed Object", "Other Object", "Other non-collision", "Parked Motor vehicle", "Turning",
+                    "Read-end", "Sideswipe-same direction", "Sideswipe-opposite direction", "Head-on", "Angle")
+temp$Date <- as.character(temp$Date)
+
+#dd <- addmargins(temp[,-1], margin=1)
+#p <- aggregate(. ~ Date, temp, sum)
+#p
+#p <- colSums(temp[,-1],sparseResult = TRUE)
+#r <- c("Total",p)
+#dd <-rbind(dd,r)
+temp
+})
+
+
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Output 1 - Ticket Data Table
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
