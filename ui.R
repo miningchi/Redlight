@@ -27,7 +27,7 @@ shinyUI(pageWithSidebar(
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Application title
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  headerPanel("Red Light Camera Analysis"),
+  headerPanel("Accident Analysis for Chicago"),
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Sidebar Panel
@@ -36,14 +36,17 @@ shinyUI(pageWithSidebar(
     
     wellPanel(
       helpText(HTML("<b>READY?</b>")),
-      HTML("You can modify the basic settings. Click this to refresh with new data."),
+      HTML("Click this to refresh with new data."),
       submitButton("Update Graphs and Tables")
     ),
     
     wellPanel(
-      helpText(HTML("<b>BASIC SETTINGS</b>")),
+      helpText(HTML("<b>Enter an Address or Select a Red Light Camera Intersection</b>")),
       
-      selectInput('Intersection', 'Options', df1$INTERSECTION, selected = "Halsted-119th",selectize=TRUE),
+      textInput('Address', "Examples: Halsted-119, Chicago, IL or 679 N. Michigan, Chicago, IL", value = NULL),
+      numericInput('Buffer',"Width of Buffer in Feet", value = 100, min=1, max=300),
+      
+      selectInput('Intersection', 'Red Light Camera', df1$INTERSECTION, selected = "Halsted-119th",selectize=TRUE),
       
       dateInput("startdate", "Start Date:", value = "2009-01-01", format = "mm-dd-yyyy",
                 min = "2009-01-01", max = "2012-12-30"),
@@ -69,7 +72,7 @@ shinyUI(pageWithSidebar(
                showOutput("ticketchart","highcharts"),uiOutput("heading"),
                textOutput("totaltickets"),textOutput("totalaccidents"), textOutput("totalkilled"), textOutput("totalinjured"), 
                uiOutput("heading1"), dataTableOutput("totalcolltype"),uiOutput("heading2"), dataTableOutput("totalcolltype2")   ),
-    tabPanel("Map", showOutput("map","leaflet"), textOutput("mapinfo"),textOutput("totaltickets2"), textOutput("totalaccidents2")),
+      tabPanel("Map", showOutput("map","leaflet"), textOutput("mapinfo"),textOutput("totaltickets2"), textOutput("totalaccidents2")),
       tabPanel("FAQ", includeMarkdown("docs/introduction.md")),
       tabPanel("Accident Data", dataTableOutput("datatable")),
       tabPanel("Ticket Data", dataTableOutput("datatickettable")),
