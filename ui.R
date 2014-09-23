@@ -55,7 +55,7 @@ shinyUI(pageWithSidebar(
                 min = "2009-01-02", max = "2012-12-31"),
       ##Need some validation that enddate is after start date
       helpText("MM-DD-YEAR as date format"), 
-      helpText("Ensure your period to analyze is less than the data range")
+      helpText("Ensure your period to analyze is less than the data range. For periods shorter than 24 months, choose a monthly, weekly, or daily count.")
     )
     
    ),
